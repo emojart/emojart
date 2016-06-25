@@ -39,7 +39,7 @@ export default class TweetContainer extends React.Component {
 	render() {
 		return (
 		  <div>
-		  	<Tweet tweets={this.state.tweetData} />
+		  	<Tweet class="row" tweets={this.state.tweetData} />
 		  </div>
 		);
 	}
