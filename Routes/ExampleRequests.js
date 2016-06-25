@@ -33,19 +33,33 @@ var getTweets = function(url) {
         var new_latent_count = body.new_latent_count;
 
         var $ = cheerio.load(items_html);
-         $('.TweetTextSize').filter(function(){
-            var $tweetPost = $(this);
-            if ($tweetPost.html().indexOf("img") > -1) {
-              $tweetPost.find("img").each(function(){
-                var altValue = $(this).attr("alt");
-                $(this).before(altValue);
-              });
-              console.log($tweetPost.text());
-            };
-          })
+        $('.TweetTextSize').filter(function(){
+          var $tweetPost = $(this);
+          if ($tweetPost.html().indexOf("img") > -1) {
+            $tweetPost.find("img").each(function(){
+              var altValue = $(this).attr("alt");
+              $(this).before(altValue);
+            });
+            console.log($tweetPost.text());
+          };
+        })
+
+        if (has_more_items === true) {
+          var url = 'https://twitter.com/i/profiles/show/emojiart_/timeline' +
+                        '?include_available_features=1' +
+                        '&max_position=' + min_position +
+                        '&reset_error_state=false';
+          getTweets(url);
+        }
+
       };
   });
 };
+
+//take initial call to twitter
+//parse tweets and push to data array
+//call function again
+//return array when has_more_jtems = false
 
 var url = 'https://twitter.com/i/profiles/show/emojiart_/timeline?include_available_features=1&include_entities=1&max_position=656490279860482048&reset_error_state=false';
 getTweets(url);
