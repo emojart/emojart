@@ -5,7 +5,8 @@ var x = Xray();
 var jsdom = require('jsdom');
 var $ = require('jquery')
 var Q = require("q");
-
+var request = require("request");
+var cheerio = require('cheerio');
 
 var getAlt = function(tweetHTML) {
   var deferred = Q.defer();
@@ -21,6 +22,34 @@ var getAlt = function(tweetHTML) {
   });
   return deferred.promise;
 };     
+
+var getTweets = function(url) {
+  request(url, function(error, response){
+      if(!error){
+        var body = JSON.parse(response.body);
+        var min_position = body.min_position;
+        var has_more_items = body.has_more_items;
+        var items_html = body.items_html;
+        var new_latent_count = body.new_latent_count;
+
+        var $ = cheerio.load(items_html);
+         $('.TweetTextSize').filter(function(){
+            var $tweetPost = $(this);
+            if ($tweetPost.html().indexOf("img") > -1) {
+              $tweetPost.find("img").each(function(){
+                var altValue = $(this).attr("alt");
+                $(this).before(altValue);
+              });
+              console.log($tweetPost.text());
+            };
+          })
+      };
+  });
+};
+
+var url = 'https://twitter.com/i/profiles/show/emojiart_/timeline?include_available_features=1&include_entities=1&max_position=656490279860482048&reset_error_state=false';
+getTweets(url);
+
 
 module.exports = {
   crawl: function(req, res){
