@@ -23,7 +23,7 @@ export default class TweetContainer extends React.Component {
 		  dataType: 'json',
 		  cache: false,
 		  type: 'get',
-		  data: {URL: "https://twitter.com/emojistory", CSS: ".js-tweet-text-container"},
+		  data: {URL: "https://twitter.com/emojiart_", CSS: ".js-tweet-text-container"},
 		  success: function(data) {
 		  	// console.log("success");
 		  	// console.log(data);

@@ -15,8 +15,8 @@ var getAlt = function(tweetHTML) {
     $tweetHTML.find("img").each(function(){
       var altValue = $(window)(this).attr("alt");
       $(window)(this).before(altValue);
-      $(window)(this).remove();
-      deferred.resolve($tweetHTML);       
+      // $(window)(this).remove();
+      deferred.resolve($tweetHTML);
     });          
   });
   return deferred.promise;
@@ -29,25 +29,19 @@ module.exports = {
     var data = x(URL, SELECTOR , [{content: '@html', a: '@href', img: '@src'}])(function(err, tweetData) {
 
       var promises = [];
-      
-      for (var i = 0; i < tweetData.length; i++) {
-        //var deferred = Q.defer();
-        getAlt(tweetData[i]["content"]).then(function(item) {
-          //deferred.resolve(item.text());
-          promises.push(item.text());
-          if(promises.length + 1 == tweetData.length){
-            res.json(promises)
-          }
-
-        });
-      }
-
-      // Q.allSettled(promises).then(function(data){
-      //   console.log(data.length);
-      //   res.json(data);
-      // });
-
+      for (tweetHTML in tweetData) {
+          if (tweetData[tweetHTML]["content"].indexOf("img") > -1) {
+            var promise = getAlt(tweetData[tweetHTML]["content"]).then(function(context){
+              console.log(context.text());
+              return context.text();
+            });
+            promises.push(promise);
+          };
+      };
+      Q.all(promises).then(function(results){
+        console.log(results.length);
+        res.json(results);
+      });
     });
   }
 }
-
