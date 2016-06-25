@@ -23,73 +23,96 @@ var getAlt = function(tweetHTML) {
   return deferred.promise;
 };     
 
-var getTweets = function(url) {
-  request(url, function(error, response){
-      if(!error){
-        var body = JSON.parse(response.body);
-        var min_position = body.min_position;
-        var has_more_items = body.has_more_items;
-        var items_html = body.items_html;
-        var new_latent_count = body.new_latent_count;
+// var getTweets = function(url) {
+//   request(url, function(error, response){
+//       if(!error){
+//         var body = JSON.parse(response.body);
+//         var min_position = body.min_position;
+//         var has_more_items = body.has_more_items;
+//         var items_html = body.items_html;
+//         var new_latent_count = body.new_latent_count;
 
-        var $ = cheerio.load(items_html);
-        $('.TweetTextSize').filter(function(){
-          var $tweetPost = $(this);
-          if ($tweetPost.html().indexOf("img") > -1) {
-            $tweetPost.find("img").each(function(){
-              var altValue = $(this).attr("alt");
-              $(this).before(altValue);
-            });
-            console.log($tweetPost.text());
-          };
-        })
+//         var $ = cheerio.load(items_html);
+//         $('.TweetTextSize').filter(function(){
+//           var $tweetPost = $(this);
+//           if ($tweetPost.html().indexOf("img") > -1) {
+//             $tweetPost.find("img").each(function(){
+//               var altValue = $(this).attr("alt");
+//               $(this).before(altValue);
+//             });
+//             console.log($tweetPost.text());
+//           };
+//         })
 
-        if (has_more_items === true) {
+//         if (has_more_items === true) {
+//           var url = 'https://twitter.com/i/profiles/show/emojiart_/timeline' +
+//                         '?include_available_features=1' +
+//                         '&max_position=' + min_position +
+//                         '&reset_error_state=false';
+//           getTweets(url);
+//         }
+
+//       };
+//   });
+// };
+
+// var getTweets = function(url, has_more_items, promises) {
+//   if (has_more_items === true) {
+//     // get and push tweets and then recall getTweets
+//     getTweets(url, true, promises);
+//   } else {
+//     return promises;
+//   }
+// }
+
+function getTweets(currentURL, currentListOfTweets, has_more_items, res){
+  if (has_more_items == false) {
+    console.log(currentListOfTweets.length);
+    res.json(currentListOfTweets);
+  } else {
+    
+    request(currentURL, function(error, response){
+
+        if(!error){
+          var body = JSON.parse(response.body);
+          var min_position = body.min_position;
+          var has_more_items = body.has_more_items;
+          var items_html = body.items_html;
+          var new_latent_count = body.new_latent_count;
+
+          var $ = cheerio.load(items_html);
+          $('.TweetTextSize').filter(function(){
+            var $tweetPost = $(this);
+            if ($tweetPost.html().indexOf("img") > -1) {
+              $tweetPost.find("img").each(function(){
+                var altValue = $(this).attr("alt");
+                $(this).before(altValue);
+              });
+              currentListOfTweets.push($tweetPost.text());
+            };
+          });
+
           var url = 'https://twitter.com/i/profiles/show/emojiart_/timeline' +
                         '?include_available_features=1' +
                         '&max_position=' + min_position +
                         '&reset_error_state=false';
-          getTweets(url);
-        }
+          return getTweets(url, currentListOfTweets, has_more_items, res);
+        };
+    });
+  }
+}
 
-      };
-  });
-};
+
 
 //take initial call to twitter
 //parse tweets and push to data array
 //call function again
 //return array when has_more_jtems = false
 
-var url = 'https://twitter.com/i/profiles/show/emojiart_/timeline?include_available_features=1&include_entities=1&max_position=656490279860482048&reset_error_state=false';
-getTweets(url);
-
-
 module.exports = {
   crawl: function(req, res){
-    var URL = 'https://twitter.com/i/profiles/show/emojiart_/timeline?include_available_features=1&include_entities=1&max_position=656490279860482048&reset_error_state=false';
-
-    // https://twitter.com/i/profiles/show/emojiart_/timeline?include_available_features=1&include_entities=1&max_position=656490279860482048&reset_error_state=false
-    // https://twitter.com/i/profiles/show/emojiart_/timeline?include_available_features=1&include_entities=1&max_position=370732064439816192&reset_error_state=false
-    jsdom.env(URL, function (errors, window) {
-      $(window).ajax({
-        url: URL,
-        dataType: 'json',
-        cache: false,
-        type: 'get',
-        data: {URL: "https://twitter.com/emojiart_", CSS: ".js-tweet-text-container"},
-        success: function(data) {
-          console.log("success");
-          console.log(data);
-          
-          //this.setState({"tweetData": data}); 
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.log("error");
-          console.error(this.props.url, status, err.toString());
-        }.bind(this)
-      }); 
-    });
+    var url = 'https://twitter.com/i/profiles/show/emojiart_/timeline?include_available_features=1&include_entities=1&max_position=656490279860482048&reset_error_state=false';
+    getTweets(url, [], true, res);
   }
 }
 
