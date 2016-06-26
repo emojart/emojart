@@ -65,10 +65,10 @@ var getAlt = function(tweetHTML) {
 //   }
 // }
 
-function getTweets(currentListOfTweets, user_name, min_position, has_more_items, res){
+function getTweets(current_twitter_list, user_name, min_position, has_more_items, res){
   if (has_more_items == false) {
-    console.log('Total number of posts extracted from user', currentListOfTweets.length);
-    res.json(currentListOfTweets);
+    console.log('Total number of posts extracted from user', current_twitter_list.length);
+    res.json(current_twitter_list);
   } else {
     
     var url = 'https://twitter.com/i/profiles/show/' +
@@ -95,11 +95,11 @@ function getTweets(currentListOfTweets, user_name, min_position, has_more_items,
                 $(this).before(altValue);
               });
               console.log($tweetPost.text());
-              currentListOfTweets.push($tweetPost.text());
+              current_twitter_list.push($tweetPost.text());
             };
           });
 
-          return getTweets(currentListOfTweets, user_name, min_position, has_more_items, res);
+          return getTweets(current_twitter_list, user_name, min_position, has_more_items, res);
         };
     });
   }
