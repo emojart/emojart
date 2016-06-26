@@ -65,13 +65,19 @@ var getAlt = function(tweetHTML) {
 //   }
 // }
 
-function getTweets(currentURL, currentListOfTweets, has_more_items, res){
+function getTweets(currentListOfTweets, user_name, min_position, has_more_items, res){
   if (has_more_items == false) {
     console.log('Total number of posts extracted from user', currentListOfTweets.length);
     res.json(currentListOfTweets);
   } else {
     
-    request(currentURL, function(error, response){
+    var url = 'https://twitter.com/i/profiles/show/' +
+                  user_name + '/timeline' +
+                  '?include_available_features=1' +
+                  '&max_position=' + min_position +
+                  '&reset_error_state=false';
+
+    request(url, function(error, response){
 
         if(!error){
           var body = JSON.parse(response.body);
@@ -93,11 +99,7 @@ function getTweets(currentURL, currentListOfTweets, has_more_items, res){
             };
           });
 
-          var url = 'https://twitter.com/i/profiles/show/emojiart_/timeline' +
-                        '?include_available_features=1' +
-                        '&max_position=' + min_position +
-                        '&reset_error_state=false';
-          return getTweets(url, currentListOfTweets, has_more_items, res);
+          return getTweets(currentListOfTweets, user_name, min_position, has_more_items, res);
         };
     });
   }
@@ -112,8 +114,7 @@ function getTweets(currentURL, currentListOfTweets, has_more_items, res){
 
 module.exports = {
   crawl: function(req, res){
-    var url = 'https://twitter.com/i/profiles/show/emojiart_/timeline?include_available_features=1&include_entities=1&max_position=656490279860482048&reset_error_state=false';
-    getTweets(url, [], true, res);
+    getTweets([], 'emojistory', '656490279860482048', true, res);
   }
 }
 
