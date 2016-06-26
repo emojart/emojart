@@ -67,7 +67,7 @@ var getAlt = function(tweetHTML) {
 
 function getTweets(currentURL, currentListOfTweets, has_more_items, res){
   if (has_more_items == false) {
-    console.log(currentListOfTweets.length);
+    console.log('Total number of posts extracted from user', currentListOfTweets.length);
     res.json(currentListOfTweets);
   } else {
     
@@ -88,6 +88,7 @@ function getTweets(currentURL, currentListOfTweets, has_more_items, res){
                 var altValue = $(this).attr("alt");
                 $(this).before(altValue);
               });
+              console.log($tweetPost.text());
               currentListOfTweets.push($tweetPost.text());
             };
           });
